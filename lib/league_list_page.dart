@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:fotmob/league_detail_page.dart';
 import 'package:fotmob/model/league.dart';
+import 'package:fotmob/view/league_card.dart';
 
 class LeagueListPage extends StatefulWidget {
   @override
@@ -16,33 +16,21 @@ class _LeagueListPageState extends State<LeagueListPage> {
 
   Set<int> favoriteLeagues = Set();
 
-  Widget _listItem(BuildContext context, League league) {
-    return ListTile(
-      onTap: () {
-        Navigator.of(context)
-            .push(MaterialPageRoute(builder: (context) => LeagueDetailsPage(league)));
-      },
-      leading: Image.network(
-        'https://images.fotmob.com/image_resources/logo/leaguelogo/${league.id}.png',
-        height: 32.0,
-        width: 32.0,
-      ),
-      title: Text('${league.name}'),
-      trailing: GestureDetector(
-        onTap: () {
-          setState(() {
-            if (favoriteLeagues.contains(league.id)) {
-              favoriteLeagues.remove(league.id);
-            } else {
-              favoriteLeagues.add(league.id);
-            }
-          });
-        },
-        child: Icon(favoriteLeagues.contains(league.id)
-            ? Icons.star
-            : Icons.star_border),
-      ),
-    );
+  void _onFavoriteClicked(int id) {
+    setState(() {
+      if (favoriteLeagues.contains(id)) {
+        favoriteLeagues.remove(id);
+      } else {
+        favoriteLeagues.add(id);
+      }
+    });
+  }
+
+  Widget _leagueCardBuilder(BuildContext context, int index) {
+    return LeagueCard(
+        leagues[index], favoriteLeagues.contains(leagues[index].id), () {
+      _onFavoriteClicked(leagues[index].id);
+    });
   }
 
   @override
@@ -53,10 +41,7 @@ class _LeagueListPageState extends State<LeagueListPage> {
         backgroundColor: Color.fromARGB(255, 4, 152, 92),
       ),
       body: ListView.builder(
-          itemCount: leagues.length,
-          itemBuilder: (BuildContext context, int index) {
-            return _listItem(context, leagues[index]);
-          }),
+          itemCount: leagues.length, itemBuilder: _leagueCardBuilder),
     );
   }
 }
