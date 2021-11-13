@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:fotmob/model/league.dart';
 import 'package:fotmob/view/league_card.dart';
@@ -35,14 +36,18 @@ class _LeagueListPageState extends State<LeagueListPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Select League'),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.only(top: 8.0),
-        child: ListView.builder(
-            itemCount: leagues.length, itemBuilder: _leagueCardBuilder),
+    return CupertinoPageScaffold(
+      child: NestedScrollView(
+        headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
+          return <Widget>[
+            CupertinoSliverNavigationBar(
+              largeTitle: Text('Select League'),
+            )
+          ];
+        },
+        body: ListView.builder(
+            padding: const EdgeInsets.only(top: 8.0),
+            itemCount: leagues.length, itemBuilder: _leagueCardBuilder,),
       ),
     );
   }
