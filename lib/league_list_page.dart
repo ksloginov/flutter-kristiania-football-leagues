@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:fotmob/model/league.dart';
+import 'package:fotmob/model/list_item.dart';
 import 'package:fotmob/view/league_card.dart';
 
 class LeagueListPage extends StatefulWidget {
@@ -21,23 +22,66 @@ class _LeagueListPageState extends State<LeagueListPage> {
     League(55, "Serie A"),
   ];
 
-  Set<int> favoriteLeagues = Set();
+  Set<int> _favoriteLeagues = Set();
+
+  List<ListItem> _items = [];
+
+  _LeagueListPageState() {
+    _populateListItems();
+  }
 
   void _onFavoriteClicked(int id) {
     setState(() {
-      if (favoriteLeagues.contains(id)) {
-        favoriteLeagues.remove(id);
+      if (_favoriteLeagues.contains(id)) {
+        _favoriteLeagues.remove(id);
       } else {
-        favoriteLeagues.add(id);
+        _favoriteLeagues.add(id);
       }
+
+      _populateListItems();
     });
   }
 
   Widget _leagueCardBuilder(BuildContext context, int index) {
-    return LeagueCard(
-        leagues[index], favoriteLeagues.contains(leagues[index].id), () {
-      _onFavoriteClicked(leagues[index].id);
-    });
+    switch (_items[index].type) {
+      case ListItemType.header:
+        final title = _items[index].title;
+        if (title == null) {
+          throw Exception("Title can't be null");
+        }
+
+        return Text(title, style: Theme.of(context).textTheme.headline5,);
+      case ListItemType.item:
+        final league = _items[index].league;
+        if (league == null) {
+          throw Exception("League can't be null");
+        }
+
+        return LeagueCard(league, _favoriteLeagues.contains(league.id), () {
+          _onFavoriteClicked(league.id);
+        });
+    }
+  }
+
+  void _populateListItems() {
+    List<ListItem> newList = [];
+    if (_favoriteLeagues.isNotEmpty) {
+      newList.add(ListItem(type: ListItemType.header, title: "Favorites"));
+      for (final league in leagues) {
+        if (_favoriteLeagues.contains(league.id)) {
+          newList.add(ListItem(type: ListItemType.item, league: league));
+        }
+      }
+    }
+
+    newList.add(ListItem(type: ListItemType.header, title: "All leagues"));
+    for (final league in leagues) {
+      if (!_favoriteLeagues.contains(league.id)) {
+        newList.add(ListItem(type: ListItemType.item, league: league));
+      }
+    }
+
+    _items = newList;
   }
 
   @override
@@ -52,8 +96,10 @@ class _LeagueListPageState extends State<LeagueListPage> {
           ];
         },
         body: ListView.builder(
-            padding: const EdgeInsets.only(top: 8.0),
-            itemCount: leagues.length, itemBuilder: _leagueCardBuilder,),
+          padding: const EdgeInsets.only(top: 8.0),
+          itemCount: _items.length,
+          itemBuilder: _leagueCardBuilder,
+        ),
       ),
     );
   }
