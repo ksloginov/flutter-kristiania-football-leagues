@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:fotmob/model/league.dart';
 import 'package:fotmob/model/list_item.dart';
 import 'package:fotmob/view/league_card.dart';
+import 'package:fotmob/view/league_header.dart';
 
 class LeagueListPage extends StatefulWidget {
   @override
@@ -50,7 +51,7 @@ class _LeagueListPageState extends State<LeagueListPage> {
           throw Exception("Title can't be null");
         }
 
-        return Text(title, style: Theme.of(context).textTheme.headline5,);
+        return LeagueHeader(title);
       case ListItemType.item:
         final league = _items[index].league;
         if (league == null) {

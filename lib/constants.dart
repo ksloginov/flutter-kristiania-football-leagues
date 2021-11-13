@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 final kSelectionColor = Color(0xFFDDDDDD);
 final kTintColor = Color.fromARGB(255, 0, 152, 95);
 final kBackgroundColor = Color.fromARGB(255, 245, 245, 245);
+final kSecondaryTexTColor = Color.fromARGB(255, 121, 121, 121);
 
 final kAppThemeData = ThemeData.light().copyWith(
   highlightColor: kSelectionColor,
