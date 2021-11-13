@@ -40,8 +40,11 @@ class _LeagueListPageState extends State<LeagueListPage> {
         title: Text('Select League'),
         backgroundColor: Color.fromARGB(255, 4, 152, 92),
       ),
-      body: ListView.builder(
-          itemCount: leagues.length, itemBuilder: _leagueCardBuilder),
+      body: Padding(
+        padding: const EdgeInsets.only(top: 8.0),
+        child: ListView.builder(
+            itemCount: leagues.length, itemBuilder: _leagueCardBuilder),
+      ),
     );
   }
 }
