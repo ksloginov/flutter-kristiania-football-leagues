@@ -10,9 +10,15 @@ class LeagueListPage extends StatefulWidget {
 
 class _LeagueListPageState extends State<LeagueListPage> {
   List<League> leagues = [
-    League(47, "English Premier League"),
+    League(50, "EURO"),
     League(42, "Champions League"),
-    League(55, "La Liga"),
+    League(44, "Copa America"),
+    League(73, "Europa League"),
+    League(47, "Premier League"),
+    League(54, "1.Bundersliga"),
+    League(87, "LaLiga"),
+    League(53, "Ligue 1"),
+    League(55, "Serie A"),
   ];
 
   Set<int> favoriteLeagues = Set();
