@@ -4,6 +4,7 @@ import 'package:fotmob/model/league.dart';
 import 'package:fotmob/model/list_item.dart';
 import 'package:fotmob/view/league_card.dart';
 import 'package:fotmob/view/league_header.dart';
+import 'package:great_list_view/great_list_view.dart';
 
 class LeagueListPage extends StatefulWidget {
   @override
@@ -22,6 +23,8 @@ class _LeagueListPageState extends State<LeagueListPage> {
     League(53, "Ligue 1"),
     League(55, "Serie A"),
   ];
+
+  final _controller = AnimatedListController();
 
   Set<int> _favoriteLeagues = Set();
 
@@ -43,17 +46,17 @@ class _LeagueListPageState extends State<LeagueListPage> {
     });
   }
 
-  Widget _leagueCardBuilder(BuildContext context, int index) {
-    switch (_items[index].type) {
+  Widget _leagueCardBuilder(BuildContext context, ListItem item) {
+    switch (item.type) {
       case ListItemType.header:
-        final title = _items[index].title;
+        final title = item.title;
         if (title == null) {
           throw Exception("Title can't be null");
         }
 
         return LeagueHeader(title);
       case ListItemType.item:
-        final league = _items[index].league;
+        final league = item.league;
         if (league == null) {
           throw Exception("League can't be null");
         }
@@ -96,11 +99,18 @@ class _LeagueListPageState extends State<LeagueListPage> {
             )
           ];
         },
-        body: ListView.builder(
-          padding: const EdgeInsets.only(top: 8.0),
-          itemCount: _items.length,
-          itemBuilder: _leagueCardBuilder,
+        body: AutomaticAnimatedListView<ListItem>(
+          padding: EdgeInsets.only(top: 8.0),
+          list: _items,
+          comparator: AnimatedListDiffListComparator<ListItem>(
+            sameItem: (a, b) => a.type == b.type && a.league == b.league && a.title == b.title,
+            sameContent: (a, b) => a.type == b.type && a.league == b.league && a.title == b.title,
+          ),
+          itemBuilder: (context, item, data) => data.measuring
+              ? Container(height: 60) : _leagueCardBuilder(context, item),
+          listController: _controller,
         ),
+
       ),
     );
   }
