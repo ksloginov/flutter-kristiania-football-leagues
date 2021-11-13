@@ -38,7 +38,6 @@ class _LeagueListPageState extends State<LeagueListPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text('Select League'),
-        backgroundColor: Color.fromARGB(255, 4, 152, 92),
       ),
       body: Padding(
         padding: const EdgeInsets.only(top: 8.0),

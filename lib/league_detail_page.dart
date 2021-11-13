@@ -9,7 +9,6 @@ class LeagueDetailsPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(title: Text('${league.name}')),
       body: Container(
-        color: Colors.blueAccent,
       ),
     );
   }
