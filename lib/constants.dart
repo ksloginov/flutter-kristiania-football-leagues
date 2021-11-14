@@ -1,6 +1,8 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 
+final kStoredFavoritesKey = "KEY_STORED_FAVORITES";
+
 final kSelectionColor = Color(0xFFDDDDDD);
 final kTintColor = Color.fromARGB(255, 0, 152, 95);
 final kBackgroundColor = Color.fromARGB(255, 245, 245, 245);

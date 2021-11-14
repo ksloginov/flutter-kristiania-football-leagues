@@ -1,10 +1,12 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:fotmob/constants.dart';
 import 'package:fotmob/model/league.dart';
 import 'package:fotmob/model/list_item.dart';
 import 'package:fotmob/view/league_card.dart';
 import 'package:fotmob/view/league_header.dart';
 import 'package:great_list_view/great_list_view.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class LeagueListPage extends StatefulWidget {
   @override
@@ -30,8 +32,19 @@ class _LeagueListPageState extends State<LeagueListPage> {
 
   List<ListItem> _items = [];
 
-  _LeagueListPageState() {
-    _populateListItems();
+  @override
+  void initState() {
+    super.initState();
+    SharedPreferences.getInstance().then((prefs) {
+      final cache = prefs.getStringList(kStoredFavoritesKey)?.map((e) => int.parse(e)).toSet();
+      if (cache != null) {
+        _favoriteLeagues = cache;
+      }
+
+      setState(() {
+        _populateListItems();
+      });
+    });
   }
 
   void _onFavoriteClicked(int id) {
@@ -43,6 +56,7 @@ class _LeagueListPageState extends State<LeagueListPage> {
       }
 
       _populateListItems();
+      _storeFavorites();
     });
   }
 
@@ -88,6 +102,11 @@ class _LeagueListPageState extends State<LeagueListPage> {
     _items = newList;
   }
 
+  void _storeFavorites() async {
+    SharedPreferences preferences = await SharedPreferences.getInstance();
+    await preferences.setStringList(kStoredFavoritesKey, _favoriteLeagues.map((e) => e.toString()).toList());
+  }
+  
   @override
   Widget build(BuildContext context) {
     return CupertinoPageScaffold(
