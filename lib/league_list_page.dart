@@ -32,8 +32,20 @@ class _LeagueListPageState extends State<LeagueListPage> {
   @override
   void initState() {
     super.initState();
-    setState(() {
-      _populateListItems();
+
+    SharedPreferences.getInstance().then((preference) {
+      final favoriteCache = preference.getStringList(kFavoriteLeaguesKey);
+      if (favoriteCache != null) {
+        try {
+          favoriteLeagues = favoriteCache.map((e) => int.parse(e)).toSet();
+        } catch (exception) {
+          print('Can\' read value from cache; $exception');
+        }
+      }
+
+      setState(() {
+        _populateListItems();
+      });
     });
   }
 
@@ -96,7 +108,7 @@ class _LeagueListPageState extends State<LeagueListPage> {
         return LeagueCard(
           league,
           favoriteLeagues.contains(league.id),
-              () {
+          () {
             _onFavoriteClicked(league.id);
           },
         );
