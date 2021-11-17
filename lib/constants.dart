@@ -2,6 +2,8 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 
+final kFavoriteLeaguesKey = 'key_favorite_leagues';
+
 final kStandardBackgroundColor = Color.fromARGB(255, 245, 245, 245);
 final kSecondaryText = Colors.grey[500];
 final kTintColor = Color.fromARGB(255, 0, 152, 95);

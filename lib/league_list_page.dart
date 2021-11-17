@@ -1,9 +1,11 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:fotmob/constants.dart';
 import 'package:fotmob/model/league.dart';
 import 'package:fotmob/model/list_item.dart';
 import 'package:fotmob/view/custom_header.dart';
 import 'package:fotmob/view/league_card.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class LeagueListPage extends StatefulWidget {
   @override
@@ -33,6 +35,12 @@ class _LeagueListPageState extends State<LeagueListPage> {
     setState(() {
       _populateListItems();
     });
+  }
+
+  void _storeFavorites() async {
+    SharedPreferences preferences = await SharedPreferences.getInstance();
+    final favList = favoriteLeagues.map((e) => e.toString()).toList();
+    preferences.setStringList(kFavoriteLeaguesKey, favList);
   }
 
   void _populateListItems() {
@@ -65,6 +73,7 @@ class _LeagueListPageState extends State<LeagueListPage> {
         favoriteLeagues.add(id);
       }
 
+      _storeFavorites();
       _populateListItems();
     });
   }
