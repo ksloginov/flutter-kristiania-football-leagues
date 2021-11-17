@@ -1,6 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:fotmob/model/league.dart';
+import 'package:fotmob/model/list_item.dart';
+import 'package:fotmob/view/custom_header.dart';
 import 'package:fotmob/view/league_card.dart';
 
 class LeagueListPage extends StatefulWidget {
@@ -10,12 +12,50 @@ class LeagueListPage extends StatefulWidget {
 
 class _LeagueListPageState extends State<LeagueListPage> {
   List<League> leagues = [
-    League(47, "English Premier League"),
+    League(50, "EURO"),
     League(42, "Champions League"),
-    League(55, "La Liga"),
+    League(44, "Copa America"),
+    League(73, "Europa League"),
+    League(47, "Premier League"),
+    League(54, "1.Bundersliga"),
+    League(87, "LaLiga"),
+    League(53, "Ligue 1"),
+    League(55, "Serie A"),
   ];
 
+  List<ListItem> _items = [];
+
   Set<int> favoriteLeagues = Set();
+
+  @override
+  void initState() {
+    super.initState();
+    setState(() {
+      _populateListItems();
+    });
+  }
+
+  void _populateListItems() {
+    List<ListItem> newList = [];
+
+    if (favoriteLeagues.isNotEmpty) {
+      newList.add(ListItem(type: ListItemType.header, title: 'Favorites'));
+      for (final league in leagues) {
+        if (favoriteLeagues.contains(league.id)) {
+          newList.add(ListItem(type: ListItemType.item, league: league));
+        }
+      }
+    }
+
+    newList.add(ListItem(type: ListItemType.header, title: 'All leagues'));
+    for (final league in leagues) {
+      if (!favoriteLeagues.contains(league.id)) {
+        newList.add(ListItem(type: ListItemType.item, league: league));
+      }
+    }
+
+    _items = newList;
+  }
 
   void _onFavoriteClicked(int id) {
     setState(() {
@@ -24,14 +64,34 @@ class _LeagueListPageState extends State<LeagueListPage> {
       } else {
         favoriteLeagues.add(id);
       }
+
+      _populateListItems();
     });
   }
 
-  Widget _leagueCardBuilder(BuildContext context, int index) {
-    return LeagueCard(
-        leagues[index], favoriteLeagues.contains(leagues[index].id), () {
-      _onFavoriteClicked(leagues[index].id);
-    });
+  Widget _listItemBuilder(BuildContext context, int index) {
+    switch (_items[index].type) {
+      case ListItemType.header:
+        final title = _items[index].title;
+        if (title == null) {
+          throw Exception('Oh no, empty header');
+        }
+
+        return CustomHeader(title);
+      case ListItemType.item:
+        final league = _items[index].league;
+        if (league == null) {
+          throw Exception('Oh no!');
+        }
+
+        return LeagueCard(
+          league,
+          favoriteLeagues.contains(league.id),
+              () {
+            _onFavoriteClicked(league.id);
+          },
+        );
+    }
   }
 
   @override
@@ -46,8 +106,10 @@ class _LeagueListPageState extends State<LeagueListPage> {
           ];
         },
         body: ListView.builder(
-            padding: const EdgeInsets.only(top: 8.0),
-            itemCount: leagues.length, itemBuilder: _leagueCardBuilder,),
+          padding: EdgeInsets.only(top: 8.0),
+          itemCount: _items.length,
+          itemBuilder: _listItemBuilder,
+        ),
       ),
     );
   }
