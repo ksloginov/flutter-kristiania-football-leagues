@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:fotmob/constants.dart';
@@ -6,6 +7,7 @@ import 'package:fotmob/model/list_item.dart';
 import 'package:fotmob/view/custom_header.dart';
 import 'package:fotmob/view/league_card.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:http/http.dart';
 
 class LeagueListPage extends StatefulWidget {
   @override
@@ -13,17 +15,7 @@ class LeagueListPage extends StatefulWidget {
 }
 
 class _LeagueListPageState extends State<LeagueListPage> {
-  List<League> leagues = [
-    League(50, "EURO"),
-    League(42, "Champions League"),
-    League(44, "Copa America"),
-    League(73, "Europa League"),
-    League(47, "Premier League"),
-    League(54, "1.Bundersliga"),
-    League(87, "LaLiga"),
-    League(53, "Ligue 1"),
-    League(55, "Serie A"),
-  ];
+  List<League> _leagues = [];
 
   List<ListItem> _items = [];
 
@@ -32,21 +24,28 @@ class _LeagueListPageState extends State<LeagueListPage> {
   @override
   void initState() {
     super.initState();
+    _loadFavoritesAndData();
+  }
+  
+  void _loadFavoritesAndData() async {
+    
+    final preferences = await SharedPreferences.getInstance();
+    final favoriteCache = preferences.getStringList(kFavoriteLeaguesKey);
+    if (favoriteCache != null) {
+      favoriteLeagues = favoriteCache.map((e) => int.parse(e)).toSet();
+    }
 
-    SharedPreferences.getInstance().then((preference) {
-      final favoriteCache = preference.getStringList(kFavoriteLeaguesKey);
-      if (favoriteCache != null) {
-        try {
-          favoriteLeagues = favoriteCache.map((e) => int.parse(e)).toSet();
-        } catch (exception) {
-          print('Can\' read value from cache; $exception');
-        }
-      }
+    final response = await get(Uri.parse('https://pub.fotmob.com/prod/pub/onboarding'));
+    if (response.statusCode == 200) {
+      final jsonResponse = jsonDecode(response.body) as Map<String, dynamic>;
+      final jsonLeagues = jsonResponse['suggestedLeagues'] as Iterable<dynamic>;
+      final listOfLeagues = List<League>.of(jsonLeagues.map((json) => League.fromJson(json)));
 
       setState(() {
+        _leagues = listOfLeagues;
         _populateListItems();
       });
-    });
+    }
   }
 
   void _storeFavorites() async {
@@ -60,7 +59,7 @@ class _LeagueListPageState extends State<LeagueListPage> {
 
     if (favoriteLeagues.isNotEmpty) {
       newList.add(ListItem(type: ListItemType.header, title: 'Favorites'));
-      for (final league in leagues) {
+      for (final league in _leagues) {
         if (favoriteLeagues.contains(league.id)) {
           newList.add(ListItem(type: ListItemType.item, league: league));
         }
@@ -68,7 +67,7 @@ class _LeagueListPageState extends State<LeagueListPage> {
     }
 
     newList.add(ListItem(type: ListItemType.header, title: 'All leagues'));
-    for (final league in leagues) {
+    for (final league in _leagues) {
       if (!favoriteLeagues.contains(league.id)) {
         newList.add(ListItem(type: ListItemType.item, league: league));
       }
