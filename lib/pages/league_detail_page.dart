@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:fotmob/constants.dart';
-import 'model/league.dart';
+import '../model/league.dart';
 
 class LeagueDetailsPage extends StatelessWidget {
   final League league;

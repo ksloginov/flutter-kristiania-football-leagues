@@ -26,20 +26,21 @@ class _LeagueListPageState extends State<LeagueListPage> {
     super.initState();
     _loadFavoritesAndData();
   }
-  
+
   void _loadFavoritesAndData() async {
-    
     final preferences = await SharedPreferences.getInstance();
     final favoriteCache = preferences.getStringList(kFavoriteLeaguesKey);
     if (favoriteCache != null) {
       favoriteLeagues = favoriteCache.map((e) => int.parse(e)).toSet();
     }
 
-    final response = await get(Uri.parse('https://pub.fotmob.com/prod/pub/onboarding'));
+    final response =
+        await get(Uri.parse('https://pub.fotmob.com/prod/pub/onboarding'));
     if (response.statusCode == 200) {
       final jsonResponse = jsonDecode(response.body) as Map<String, dynamic>;
       final jsonLeagues = jsonResponse['suggestedLeagues'] as Iterable<dynamic>;
-      final listOfLeagues = List<League>.of(jsonLeagues.map((json) => League.fromJson(json)));
+      final listOfLeagues =
+          List<League>.of(jsonLeagues.map((json) => League.fromJson(json)));
 
       setState(() {
         _leagues = listOfLeagues;

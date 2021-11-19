@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:fotmob/model/league.dart';
-import '../league_detail_page.dart';
+import '../pages/league_detail_page.dart';
 import 'dart:io';
 import 'package:fotmob/constants.dart';
 

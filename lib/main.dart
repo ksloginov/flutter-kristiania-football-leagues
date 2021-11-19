@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:fotmob/league_list_page.dart';
+import 'package:fotmob/pages/main_page.dart';
 
 import 'constants.dart';
 
@@ -13,7 +13,7 @@ class FootballApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       theme: kAppTheme,
-      home: LeagueListPage(),
+      home: MainPage(),
     );
   }
 }
