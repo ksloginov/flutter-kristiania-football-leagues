@@ -64,7 +64,7 @@ class _MainPageState extends State<MainPage> {
       case 1:
         return TeamListPage(_teams);
       case 2:
-        return PlayListPage();
+        return PlayerListPage();
       default:
         throw Exception('This should never happen');
     }
