@@ -7,11 +7,15 @@ import 'package:fotmob/model/list_item.dart';
 import 'package:fotmob/view/custom_header.dart';
 import 'package:fotmob/view/league_card.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:http/http.dart';
 
 class LeagueListPage extends StatefulWidget {
   @override
   _LeagueListPageState createState() => _LeagueListPageState();
+
+  final List<League> allAvailableLeagues;
+  final SharedPreferences? preferences;
+
+  LeagueListPage(this.allAvailableLeagues, this.preferences);
 }
 
 class _LeagueListPageState extends State<LeagueListPage> {
@@ -24,29 +28,19 @@ class _LeagueListPageState extends State<LeagueListPage> {
   @override
   void initState() {
     super.initState();
-    _loadFavoritesAndData();
+    _loadFavorites();
   }
 
-  void _loadFavoritesAndData() async {
-    final preferences = await SharedPreferences.getInstance();
-    final favoriteCache = preferences.getStringList(kFavoriteLeaguesKey);
+  void _loadFavorites() {
+    final favoriteCache = widget.preferences?.getStringList(kFavoriteLeaguesKey);
     if (favoriteCache != null) {
       favoriteLeagues = favoriteCache.map((e) => int.parse(e)).toSet();
     }
 
-    final response =
-        await get(Uri.parse('https://pub.fotmob.com/prod/pub/onboarding'));
-    if (response.statusCode == 200) {
-      final jsonResponse = jsonDecode(response.body) as Map<String, dynamic>;
-      final jsonLeagues = jsonResponse['suggestedLeagues'] as Iterable<dynamic>;
-      final listOfLeagues =
-          List<League>.of(jsonLeagues.map((json) => League.fromJson(json)));
-
-      setState(() {
-        _leagues = listOfLeagues;
-        _populateListItems();
-      });
-    }
+    setState(() {
+      _leagues = widget.allAvailableLeagues;
+      _populateListItems();
+    });
   }
 
   void _storeFavorites() async {
