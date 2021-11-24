@@ -115,28 +115,43 @@ class _LeagueListPageState extends State<LeagueListPage> {
   }
 
   void _search(String newValue) async {
-    final response = await get(Uri.parse(
-        '.....term=$newValue'));
 
-    if (response.statusCode != 200) {
-      print('Weird http response. Possible error?');
-      return;
-    }
+    Future.delayed(Duration(milliseconds: 400), () async {
 
-    try {
-      final jsonResponse = jsonDecode(response.body);
-      final jsonHits = jsonResponse['aggregations']['types']['buckets'][0]
-      ['top_hits']['hits']['hits'] as Iterable<dynamic>;
+      if (_textFieldController.text != newValue) {
+        print('Value has changed');
 
-      _remoteLeagues = List<League>.of(jsonHits
-          .map((e) => League(int.parse(e['_id']), e['_source']['name'])));
-    } catch (e) {
-      print(e);
-      print('Json format was wrong, stupid idiot');
-    }
+        if (_textFieldController.text.isEmpty) {
+          setState(() {
+            _populateListItems();
+          });
+        }
+        return;
+      }
 
-    setState(() {
-      _populateListItems();
+      final response = await get(Uri.parse(
+          '....term=$newValue'));
+
+      if (response.statusCode != 200) {
+        print('Weird http response. Possible error?');
+        return;
+      }
+
+      try {
+        final jsonResponse = jsonDecode(response.body);
+        final jsonHits = jsonResponse['aggregations']['types']['buckets'][0]
+        ['top_hits']['hits']['hits'] as Iterable<dynamic>;
+
+        _remoteLeagues = List<League>.of(jsonHits
+            .map((e) => League(int.parse(e['_id']), e['_source']['name'])));
+      } catch (e) {
+        print(e);
+        print('Json format was wrong, stupid idiot');
+      }
+
+      setState(() {
+        _populateListItems();
+      });
     });
   }
 
