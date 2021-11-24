@@ -39,7 +39,6 @@ class _MainPageState extends State<MainPage> {
     }
 
     final jsonResponse = jsonDecode(response.body);
-
     final jsonSuggestedLeagues = jsonResponse['suggestedLeagues'] as Iterable<dynamic>;
     final jsonSuggestedTeams = jsonResponse['suggestedTeams'] as Iterable<dynamic>;
 

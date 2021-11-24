@@ -15,6 +15,7 @@ class TeamListPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final totalWidth = MediaQuery.of(context).size.width;
+    final doINeedBigCard = totalWidth > 500;
 
     return CupertinoPageScaffold(
       child: NestedScrollView(
@@ -33,7 +34,7 @@ class TeamListPage extends StatelessWidget {
                 crossAxisSpacing: 8.0,
                 mainAxisSpacing: 8.0,
                 padding: EdgeInsets.all(8.0),
-                crossAxisCount: (totalWidth / 130.0).toInt(),
+                crossAxisCount: (totalWidth / (doINeedBigCard ? 200.0 :130.0)).toInt(),
                 childAspectRatio: 1.0,
                 children: _teamCards()),
           ),

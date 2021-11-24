@@ -19,3 +19,8 @@ final kAppTheme = ThemeData.light().copyWith(
 );
 
 final kLeagueColors = {42: "#162E58", 44 :"#012585", 47:"#3F1152", 50:"#15868E", 53:"#465B65", 54:"#CF353A", 55:"#213860", 73:"#000000", 87: "#003C83"};
+
+final kTextFieldBorder = OutlineInputBorder(
+  borderRadius: BorderRadius.circular(25.0),
+  borderSide: BorderSide(color: Colors.white),
+);

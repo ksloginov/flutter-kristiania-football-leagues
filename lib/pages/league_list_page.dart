@@ -7,6 +7,7 @@ import 'package:fotmob/model/list_item.dart';
 import 'package:fotmob/view/custom_header.dart';
 import 'package:fotmob/view/league_card.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:http/http.dart';
 
 class LeagueListPage extends StatefulWidget {
   @override
@@ -19,11 +20,11 @@ class LeagueListPage extends StatefulWidget {
 }
 
 class _LeagueListPageState extends State<LeagueListPage> {
-  List<League> _leagues = [];
-
+  List<League> _suggestedLeagues = [];
+  List<League> _remoteLeagues = [];
   List<ListItem> _items = [];
-
   Set<int> favoriteLeagues = Set();
+  final _textFieldController = TextEditingController();
 
   @override
   void initState() {
@@ -32,13 +33,14 @@ class _LeagueListPageState extends State<LeagueListPage> {
   }
 
   void _loadFavorites() {
-    final favoriteCache = widget.preferences?.getStringList(kFavoriteLeaguesKey);
+    final favoriteCache =
+        widget.preferences?.getStringList(kFavoriteLeaguesKey);
     if (favoriteCache != null) {
       favoriteLeagues = favoriteCache.map((e) => int.parse(e)).toSet();
     }
 
     setState(() {
-      _leagues = widget.allAvailableLeagues;
+      _suggestedLeagues = widget.allAvailableLeagues;
       _populateListItems();
     });
   }
@@ -52,9 +54,12 @@ class _LeagueListPageState extends State<LeagueListPage> {
   void _populateListItems() {
     List<ListItem> newList = [];
 
+    final leagues =
+        _textFieldController.text.isEmpty ? _suggestedLeagues : _remoteLeagues;
+
     if (favoriteLeagues.isNotEmpty) {
       newList.add(ListItem(type: ListItemType.header, title: 'Favorites'));
-      for (final league in _leagues) {
+      for (final league in leagues) {
         if (favoriteLeagues.contains(league.id)) {
           newList.add(ListItem(type: ListItemType.item, league: league));
         }
@@ -62,7 +67,7 @@ class _LeagueListPageState extends State<LeagueListPage> {
     }
 
     newList.add(ListItem(type: ListItemType.header, title: 'All leagues'));
-    for (final league in _leagues) {
+    for (final league in leagues) {
       if (!favoriteLeagues.contains(league.id)) {
         newList.add(ListItem(type: ListItemType.item, league: league));
       }
@@ -109,6 +114,63 @@ class _LeagueListPageState extends State<LeagueListPage> {
     }
   }
 
+  void _search(String newValue) async {
+    final response = await get(Uri.parse(
+        '.....term=$newValue'));
+
+    if (response.statusCode != 200) {
+      print('Weird http response. Possible error?');
+      return;
+    }
+
+    try {
+      final jsonResponse = jsonDecode(response.body);
+      final jsonHits = jsonResponse['aggregations']['types']['buckets'][0]
+      ['top_hits']['hits']['hits'] as Iterable<dynamic>;
+
+      _remoteLeagues = List<League>.of(jsonHits
+          .map((e) => League(int.parse(e['_id']), e['_source']['name'])));
+    } catch (e) {
+      print(e);
+      print('Json format was wrong, stupid idiot');
+    }
+
+    setState(() {
+      _populateListItems();
+    });
+  }
+
+  Widget _searchField() {
+    return Padding(
+      padding: EdgeInsets.only(top: 16.0, left: 8.0, right: 8.0),
+      child: TextField(
+        controller: _textFieldController,
+        onChanged: _search,
+        onSubmitted: (newValue) {
+          setState(() {
+            _textFieldController.clear();
+            _populateListItems();
+          });
+        },
+        textInputAction: TextInputAction.search,
+        autocorrect: false,
+        cursorColor: kTintColor,
+        decoration: InputDecoration(
+            hintText: 'Filter leagues',
+            fillColor: Colors.white,
+            filled: true,
+            enabledBorder: kTextFieldBorder,
+            focusedBorder: kTextFieldBorder,
+            contentPadding: EdgeInsets.symmetric(horizontal: 20.0)),
+        style: TextStyle(
+          fontWeight: FontWeight.w500,
+          fontSize: 18.0,
+          color: Color.fromARGB(255, 51, 51, 51),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return CupertinoPageScaffold(
@@ -120,11 +182,25 @@ class _LeagueListPageState extends State<LeagueListPage> {
             )
           ];
         },
-        body: ListView.builder(
-          padding: EdgeInsets.only(top: 8.0),
-          itemCount: _items.length,
-          itemBuilder: _listItemBuilder,
-        ),
+        body: Column(children: [
+          _searchField(),
+          Expanded(
+            child: NotificationListener(
+              onNotification: (notification) {
+                if (notification is ScrollStartNotification) {
+                  FocusScope.of(context).unfocus();
+                }
+
+                return true;
+              },
+              child: ListView.builder(
+                padding: EdgeInsets.only(top: 8.0),
+                itemCount: _items.length,
+                itemBuilder: _listItemBuilder,
+              ),
+            ),
+          ),
+        ]),
       ),
     );
   }
