@@ -1,15 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:fotmob/model/league.dart';
+import 'package:fotmob/model/league_model.dart';
+import 'package:provider/provider.dart';
 import '../league_detail_page.dart';
 import 'dart:io';
-import 'package:fotmob/constants.dart';
 
 class LeagueCard extends StatelessWidget {
 
   final League league;
-  final bool isFavorite;
-  final void Function() favoriteClickHandler;
-  LeagueCard(this.league, this.isFavorite, this.favoriteClickHandler);
+  LeagueCard(this.league);
 
   @override
   Widget build(BuildContext context) {
@@ -32,12 +31,14 @@ class LeagueCard extends StatelessWidget {
         ),
         title: Text('${league.name}'),
         trailing: GestureDetector(
-          onTap: favoriteClickHandler,
+          onTap: () {
+            Provider.of<LeagueModel>(context, listen: false).toggleFavorite(league);
+          },
           child: Container(
             color: Colors.transparent,
             child: Padding(
               padding: const EdgeInsets.all(16.0),
-              child: Icon(isFavorite
+              child: Icon(Provider.of<LeagueModel>(context, listen: true).isFavorite(league)
                   ? Icons.star
                   : Icons.star_border),
             ),
